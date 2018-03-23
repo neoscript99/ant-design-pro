@@ -13,7 +13,7 @@ import SiderMenu from '../components/SiderMenu';
 import NotFound from '../routes/Exception/404';
 import { getRoutes } from '../utils/utils';
 import Authorized from '../utils/Authorized';
-import { getMenuData } from '../common/menu';
+import { getMenuData } from '../common/my-menu';
 import logo from '../assets/logo.svg';
 
 const { Content, Header, Footer } = Layout;

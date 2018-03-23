@@ -131,6 +131,7 @@ const proxy = {
       "path": "/base/category/list"
     });
   },
+  "POST /graphql": "http://localhost:8080"
 };
 
 export default noProxy ? {} : delay(proxy, 1000);
