@@ -24,7 +24,7 @@ export default {
       return {
         ...state,
         data: {
-          list: action.payload.map(v => { return { ...v, key: v.id } })
+          list: action.payload
         },
       };
     },

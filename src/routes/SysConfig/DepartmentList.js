@@ -276,6 +276,7 @@ export default class DepartmentList extends PureComponent {
               loading={loading}
               data={data}
               columns={columns}
+              rowKey="id"
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}
             />
