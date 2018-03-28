@@ -1,30 +1,49 @@
-import { queryDepartment } from '../services/department';
+import { list, create } from '../services/department';
 
 export default {
   namespace: 'department',
 
   state: {
     data: {
+      departmentCreate: null,
       list: []
     }
   },
 
   effects: {
-    *fetch({ payload }, { call, put }) {
-      const response = yield call(queryDepartment, payload);
+    *list({ payload }, { call, put }) {
+      const response = yield call(list, payload);
       yield put({
-        type: 'queryList',
+        type: 'listed',
         payload: response.data.departmentList
       });
     },
+    *create({ payload }, { call, put }) {
+      const response = yield call(create, { ...payload, seq: 1, enabled: true });
+      yield put({
+        type: 'created',
+        payload: response.data.departmentCreate
+      });
+    }
   },
 
   reducers: {
-    queryList(state, action) {
+    listed(state, action) {
       return {
         ...state,
         data: {
+          departmentCreate: null,
           list: action.payload
+        },
+      };
+    },
+    created(state, action) {
+      return {
+        ...state,
+        departmentCreate: action.payload,
+        data: {
+          departmentCreate: null,
+          list: state.data.list.push(action.payload)
         },
       };
     },

@@ -18,21 +18,12 @@ const columns = [
     dataIndex: 'name',
   },
   {
-    title: '部门ID',
-    dataIndex: 'id',
-  },
-  {
-    title: '序号',
+    title: '编号',
     dataIndex: 'seq',
-    sorter: true,
   },
   {
-    title: '版本',
-    dataIndex: 'version',
-    align: 'right',
-    render: val => `v${val}版`,
-    // mark to display a total number
-    needTotal: true,
+    title: '启用',
+    dataIndex: 'enabled',
   },
   {
     title: '操作',
@@ -57,7 +48,7 @@ const CreateForm = Form.create()((props) => {
   };
   return (
     <Modal
-      title="新建规则"
+      title="部门属性"
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => handleModalVisible()}
@@ -65,10 +56,10 @@ const CreateForm = Form.create()((props) => {
       <FormItem
         labelCol={{ span: 5 }}
         wrapperCol={{ span: 15 }}
-        label="描述"
+        label="部门名称"
       >
-        {form.getFieldDecorator('desc', {
-          rules: [{ required: true, message: 'Please input some description...' }],
+        {form.getFieldDecorator('name', {
+          rules: [{ required: true, message: '不能为空...' }],
         })(
           <Input placeholder="请输入" />
         )}
@@ -92,8 +83,13 @@ export default class DepartmentList extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'department/fetch',
+      type: 'department/list',
     });
+  }
+
+  componentDidUpdate() {
+    if(this.state.data.departmentCreate)
+        message.success(`添加成功 - ${getValue(this.state.data.departmentCreate)}`);
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
@@ -117,7 +113,7 @@ export default class DepartmentList extends PureComponent {
     }
 
     dispatch({
-      type: 'department/fetch',
+      type: 'department/list',
       payload: params,
     });
   }
@@ -129,7 +125,7 @@ export default class DepartmentList extends PureComponent {
       formValues: {},
     });
     dispatch({
-      type: 'department/fetch',
+      type: 'department/list',
       payload: {},
     });
   }
@@ -138,31 +134,6 @@ export default class DepartmentList extends PureComponent {
     this.setState({
       expandForm: !this.state.expandForm,
     });
-  }
-
-  handleMenuClick = (e) => {
-    const { dispatch } = this.props;
-    const { selectedRows } = this.state;
-
-    if (!selectedRows) return;
-
-    switch (e.key) {
-      case 'remove':
-        dispatch({
-          type: 'department/remove',
-          payload: {
-            no: selectedRows.map(row => row.no).join(','),
-          },
-          callback: () => {
-            this.setState({
-              selectedRows: [],
-            });
-          },
-        });
-        break;
-      default:
-        break;
-    }
   }
 
   handleSelectRows = (rows) => {
@@ -189,7 +160,7 @@ export default class DepartmentList extends PureComponent {
       });
 
       dispatch({
-        type: 'department/fetch',
+        type: 'department/list',
         payload: values,
       });
     });
@@ -203,13 +174,10 @@ export default class DepartmentList extends PureComponent {
 
   handleAdd = (fields) => {
     this.props.dispatch({
-      type: 'department/add',
-      payload: {
-        description: fields.desc,
-      },
+      type: 'department/create',
+      payload: fields,
     });
 
-    message.success('添加成功');
     this.setState({
       modalVisible: false,
     });
