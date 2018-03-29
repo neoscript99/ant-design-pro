@@ -1,26 +1,22 @@
 import graphql from '../utils/graphql';
 import gql from 'graphql-tag';
 
+const propertiesFlag = 'id,name,seq,enabled'
+const errorsFrag = 'errors{ field,message }'
+
 const departmentList = gql`
   query departmentList {
     departmentList {
-      id
-      name
-      seq
-      enabled
-      version              
+      ${propertiesFlag}         
     }
-  }          
+  }       
 `;
 
 const departmentCreate = gql`
   mutation departmentCreate($department: DepartmentCreate!) {
     departmentCreate(department: $department) {
-      id
-      name
-      seq
-      enabled
-      version   
+      ${propertiesFlag}         
+      ${errorsFrag}
     }
   }
 `;
@@ -28,9 +24,10 @@ const departmentCreate = gql`
 const departmentDelete = gql`
   mutation departmentDelete($id: String!) {
     departmentDelete(id: $id) {
-    error
+      success
+      error
+    }
   }
-}
 `;
 
 export async function list() {
@@ -42,7 +39,7 @@ export async function list() {
 export async function create(dept) {
   return graphql.mutate({
     mutation: departmentCreate,
-    variables:{department:dept}
+    variables: { department: dept }
   });
 }
 

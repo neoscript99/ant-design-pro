@@ -1,7 +1,24 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import moment from 'moment';
-import { Row, Col, Card, Form, Input, Select, Icon, Button, Dropdown, Menu, InputNumber, DatePicker, Modal, message, Badge, Divider } from 'antd';
+import {
+  Row,
+  Col,
+  Card,
+  Form,
+  Input,
+  Select,
+  Icon,
+  Button,
+  Dropdown,
+  Menu,
+  InputNumber,
+  DatePicker,
+  Modal,
+  message,
+  Badge,
+  Divider,
+} from 'antd';
 import StandardTable from 'components/StandardTable';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
@@ -9,7 +26,10 @@ import styles from '../List/TableList.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const getValue = obj => Object.keys(obj).map(key => obj[key]).join(',');
+const getValue = obj =>
+  Object.keys(obj)
+    .map(key => obj[key])
+    .join(',');
 const statusMap = ['default', 'processing', 'success', 'error'];
 const status = ['关闭', '运行中', '已上线', '异常'];
 const columns = [
@@ -18,12 +38,13 @@ const columns = [
     dataIndex: 'name',
   },
   {
-    title: '编号',
+    title: '序号',
     dataIndex: 'seq',
   },
   {
-    title: '启用',
+    title: '是否启用',
     dataIndex: 'enabled',
+    render: val => (val ? '是' : '否'),
   },
   {
     title: '操作',
@@ -37,7 +58,7 @@ const columns = [
   },
 ];
 
-const CreateForm = Form.create()((props) => {
+const CreateForm = Form.create()(props => {
   const { modalVisible, form, handleAdd, handleModalVisible } = props;
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
@@ -53,16 +74,10 @@ const CreateForm = Form.create()((props) => {
       onOk={okHandle}
       onCancel={() => handleModalVisible()}
     >
-      <FormItem
-        labelCol={{ span: 5 }}
-        wrapperCol={{ span: 15 }}
-        label="部门名称"
-      >
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="部门名称">
         {form.getFieldDecorator('name', {
           rules: [{ required: true, message: '不能为空...' }],
-        })(
-          <Input placeholder="请输入" />
-        )}
+        })(<Input placeholder="请输入" />)}
       </FormItem>
     </Modal>
   );
@@ -85,11 +100,6 @@ export default class DepartmentList extends PureComponent {
     dispatch({
       type: 'department/list',
     });
-  }
-
-  componentDidUpdate() {
-    if(this.state.data.departmentCreate)
-        message.success(`添加成功 - ${getValue(this.state.data.departmentCreate)}`);
   }
 
   handleStandardTableChange = (pagination, filtersArg, sorter) => {
@@ -116,7 +126,7 @@ export default class DepartmentList extends PureComponent {
       type: 'department/list',
       payload: params,
     });
-  }
+  };
 
   handleFormReset = () => {
     const { form, dispatch } = this.props;
@@ -128,21 +138,21 @@ export default class DepartmentList extends PureComponent {
       type: 'department/list',
       payload: {},
     });
-  }
+  };
 
   toggleForm = () => {
     this.setState({
       expandForm: !this.state.expandForm,
     });
-  }
+  };
 
-  handleSelectRows = (rows) => {
+  handleSelectRows = rows => {
     this.setState({
       selectedRows: rows,
     });
-  }
+  };
 
-  handleSearch = (e) => {
+  handleSearch = e => {
     e.preventDefault();
 
     const { dispatch, form } = this.props;
@@ -164,15 +174,15 @@ export default class DepartmentList extends PureComponent {
         payload: values,
       });
     });
-  }
+  };
 
-  handleModalVisible = (flag) => {
+  handleModalVisible = flag => {
     this.setState({
       modalVisible: !!flag,
     });
-  }
+  };
 
-  handleAdd = (fields) => {
+  handleAdd = fields => {
     this.props.dispatch({
       type: 'department/create',
       payload: fields,
@@ -181,7 +191,7 @@ export default class DepartmentList extends PureComponent {
     this.setState({
       modalVisible: false,
     });
-  }
+  };
 
   renderForm() {
     const { getFieldDecorator } = this.props.form;
@@ -190,9 +200,7 @@ export default class DepartmentList extends PureComponent {
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="规则编号">
-              {getFieldDecorator('no')(
-                <Input placeholder="请输入" />
-              )}
+              {getFieldDecorator('no')(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
@@ -206,10 +214,16 @@ export default class DepartmentList extends PureComponent {
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <Button type="primary" htmlType="submit">查询</Button>
-            <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>重置</Button>
+            <Button type="primary" htmlType="submit">
+              查询
+            </Button>
+            <Button style={{ marginLeft: 8 }} onClick={this.handleFormReset}>
+              重置
+            </Button>
             <Divider type="vertical" />
-            <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>新建</Button>
+            <Button icon="plus" type="primary" onClick={() => this.handleModalVisible(true)}>
+              新建
+            </Button>
           </Col>
         </Row>
       </Form>
@@ -236,9 +250,7 @@ export default class DepartmentList extends PureComponent {
       <PageHeaderLayout title="部门列表">
         <Card bordered={false}>
           <div className={styles.tableList}>
-            <div className={styles.tableListForm}>
-              {this.renderForm()}
-            </div>
+            <div className={styles.tableListForm}>{this.renderForm()}</div>
             <StandardTable
               selectedRows={selectedRows}
               loading={loading}
@@ -250,10 +262,7 @@ export default class DepartmentList extends PureComponent {
             />
           </div>
         </Card>
-        <CreateForm
-          {...parentMethods}
-          modalVisible={modalVisible}
-        />
+        <CreateForm {...parentMethods} modalVisible={modalVisible} />
       </PageHeaderLayout>
     );
   }
