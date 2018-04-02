@@ -1,5 +1,5 @@
-import { list, create } from '../services/department';
 import { message } from 'antd';
+import { list, create } from '../services/department';
 
 export default {
   namespace: 'department',

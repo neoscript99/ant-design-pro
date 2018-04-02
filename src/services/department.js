@@ -1,8 +1,8 @@
-import graphql from '../utils/graphql';
 import gql from 'graphql-tag';
+import graphql from '../utils/graphql';
 
-const propertiesFlag = 'id,name,seq,enabled'
-const errorsFrag = 'errors{ field,message }'
+const propertiesFlag = 'id,name,seq,enabled';
+const errorsFrag = 'errors{ field,message }';
 
 const departmentList = gql`
   query departmentList {
@@ -21,25 +21,24 @@ const departmentCreate = gql`
   }
 `;
 
-const departmentDelete = gql`
-  mutation departmentDelete($id: String!) {
-    departmentDelete(id: $id) {
-      success
-      error
-    }
-  }
-`;
+// const departmentDelete = gql`
+//   mutation departmentDelete($id: String!) {
+//     departmentDelete(id: $id) {
+//       success
+//       error
+//     }
+//   }
+// `;
 
 export async function list() {
   return graphql.query({
-    query: departmentList
+    query: departmentList,
   });
 }
 
 export async function create(dept) {
   return graphql.mutate({
     mutation: departmentCreate,
-    variables: { department: dept }
+    variables: { department: dept },
   });
 }
-
