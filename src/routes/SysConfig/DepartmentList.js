@@ -1,50 +1,37 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import moment from 'moment';
-import {
-  Row,
-  Col,
-  Card,
-  Form,
-  Input,
-  Select,
-  Icon,
-  Button,
-  Dropdown,
-  Menu,
-  InputNumber,
-  DatePicker,
-  Modal,
-  message,
-  Badge,
-  Divider,
-} from 'antd';
-import StandardTable from 'components/StandardTable';
+import { Alert, Row, Col, Card, Form, Input, Select, Button, Modal, Table, Divider } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 import styles from '../List/TableList.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const getValue = obj =>
-  Object.keys(obj)
-    .map(key => obj[key])
-    .join(',');
-const statusMap = ['default', 'processing', 'success', 'error'];
-const status = ['关闭', '运行中', '已上线', '异常'];
 const columns = [
   {
     title: '部门名称',
     dataIndex: 'name',
   },
   {
-    title: '序号',
+    title: '显示排序',
     dataIndex: 'seq',
   },
   {
     title: '是否启用',
     dataIndex: 'enabled',
     render: val => (val ? '是' : '否'),
+    filters: [
+      {
+        text: '是',
+        value: true,
+      },
+      {
+        text: '否',
+        value: false,
+      },
+    ],
+    filterMultiple: false,
+    onFilter: (value, record) => record.enabled === (value === 'true'),
   },
   {
     title: '操作',
@@ -69,7 +56,7 @@ const CreateForm = Form.create()(props => {
   };
   return (
     <Modal
-      title="部门属性"
+      title="部门信息"
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => handleModalVisible()}
@@ -91,7 +78,6 @@ const CreateForm = Form.create()(props => {
 export default class DepartmentList extends PureComponent {
   state = {
     modalVisible: false,
-    selectedRows: [],
     formValues: {},
   };
 
@@ -101,32 +87,6 @@ export default class DepartmentList extends PureComponent {
       type: 'department/list',
     });
   }
-
-  handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
-    const { formValues } = this.state;
-
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
-
-    const params = {
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
-      ...formValues,
-      ...filters,
-    };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
-    }
-
-    dispatch({
-      type: 'department/list',
-      payload: params,
-    });
-  };
 
   handleFormReset = () => {
     const { form, dispatch } = this.props;
@@ -143,12 +103,6 @@ export default class DepartmentList extends PureComponent {
   toggleForm = () => {
     this.setState({
       expandForm: !this.state.expandForm,
-    });
-  };
-
-  handleSelectRows = rows => {
-    this.setState({
-      selectedRows: rows,
     });
   };
 
@@ -199,16 +153,16 @@ export default class DepartmentList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="规则编号">
-              {getFieldDecorator('no')(<Input placeholder="请输入" />)}
+            <FormItem label="部门名称">
+              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status')(
+            <FormItem label="是否启用">
+              {getFieldDecorator('enabled')(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
+                  <Option value="true">是</Option>
+                  <Option value="false">否</Option>
                 </Select>
               )}
             </FormItem>
@@ -232,14 +186,7 @@ export default class DepartmentList extends PureComponent {
 
   render() {
     const { department: { data }, loading } = this.props;
-    const { selectedRows, modalVisible } = this.state;
-
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
-      </Menu>
-    );
+    const { modalVisible } = this.state;
 
     const parentMethods = {
       handleAdd: this.handleAdd,
@@ -251,15 +198,13 @@ export default class DepartmentList extends PureComponent {
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
-            <StandardTable
-              selectedRows={selectedRows}
-              loading={loading}
-              data={data}
-              columns={columns}
-              rowKey="id"
-              onSelectRow={this.handleSelectRows}
-              onChange={this.handleStandardTableChange}
+            <Alert
+              message={<Fragment>满足条件的查询记录总数为1000条，当前页面仅显示前100条</Fragment>}
+              style={{ marginBottom: 16 }}
+              type="info"
+              showIcon
             />
+            <Table loading={loading} dataSource={data.list} columns={columns} rowKey="id" />
           </div>
         </Card>
         <CreateForm {...parentMethods} modalVisible={modalVisible} />

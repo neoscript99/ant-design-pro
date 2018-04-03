@@ -30,9 +30,10 @@ const departmentCreate = gql`
 //   }
 // `;
 
-export async function list() {
+export async function list(params) {
   return graphql.query({
     query: departmentList,
+    variables: params,
   });
 }
 
