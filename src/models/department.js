@@ -4,9 +4,8 @@ import { list, create } from '../services/department';
 export default {
   namespace: 'department',
   state: {
-    data: {
-      list: [],
-    },
+    formValues: {},
+    list: [],
   },
 
   effects: {
@@ -14,7 +13,10 @@ export default {
       const response = yield call(list, payload);
       yield put({
         type: 'listed',
-        payload: response.data.departmentList,
+        payload: {
+          formValues: { ...payload },
+          list: response.data.departmentList,
+        },
       });
     },
     *create({ payload }, { call, put }) {
@@ -36,19 +38,13 @@ export default {
     listed(state, action) {
       return {
         ...state,
-        data: {
-          departmentCreate: null,
-          list: action.payload,
-        },
+        ...action.payload,
       };
     },
     created(state, action) {
       return {
         ...state,
-        data: {
-          departmentCreate: action.payload,
-          list: [action.payload].concat(state.data.list),
-        },
+        list: [action.payload].concat(state.list),
       };
     },
   },

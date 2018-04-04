@@ -35,11 +35,16 @@ const columns = [
   },
   {
     title: '操作',
-    render: () => (
+    render: (text, record) => (
       <Fragment>
-        <a href="">修改</a>
+        <a onClick={() => this.handleUpdate(record)}>修改</a>
         <Divider type="vertical" />
-        <a href="">删除</a>
+        { 
+        if(!record.enabled)
+          return (<a onClick={() => this.handleEnable(record)}>启用</a>)
+        else
+          return (<a onClick={() => this.handleDisable(record)}>停用</a>)
+        }
       </Fragment>
     ),
   },
@@ -78,31 +83,19 @@ const CreateForm = Form.create()(props => {
 export default class DepartmentList extends PureComponent {
   state = {
     modalVisible: false,
-    formValues: {},
   };
 
   componentDidMount() {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'department/list',
-    });
+    const { department, dispatch } = this.props;
+    if (department.list.length === 0)
+      dispatch({ type: 'department/list' });
   }
 
   handleFormReset = () => {
     const { form, dispatch } = this.props;
     form.resetFields();
-    this.setState({
-      formValues: {},
-    });
     dispatch({
       type: 'department/list',
-      payload: {},
-    });
-  };
-
-  toggleForm = () => {
-    this.setState({
-      expandForm: !this.state.expandForm,
     });
   };
 
@@ -118,10 +111,6 @@ export default class DepartmentList extends PureComponent {
         ...fieldsValue,
         updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
       };
-
-      this.setState({
-        formValues: values,
-      });
 
       dispatch({
         type: 'department/list',
@@ -148,18 +137,21 @@ export default class DepartmentList extends PureComponent {
   };
 
   renderForm() {
-    const { getFieldDecorator } = this.props.form;
+    const { form: { getFieldDecorator }, department: { formValues } } = this.props;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
             <FormItem label="部门名称">
-              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
+              {getFieldDecorator('name', { initialValue: formValues.name })(
+                <Input placeholder="请输入" />
+              )
+              }
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
             <FormItem label="是否启用">
-              {getFieldDecorator('enabled')(
+              {getFieldDecorator('enabled', { initialValue: formValues.enabled })(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
                   <Option value="true">是</Option>
                   <Option value="false">否</Option>
@@ -185,7 +177,7 @@ export default class DepartmentList extends PureComponent {
   }
 
   render() {
-    const { department: { data }, loading } = this.props;
+    const { department: { list }, loading } = this.props;
     const { modalVisible } = this.state;
 
     const parentMethods = {
@@ -204,7 +196,7 @@ export default class DepartmentList extends PureComponent {
               type="info"
               showIcon
             />
-            <Table loading={loading} dataSource={data.list} columns={columns} rowKey="id" />
+            <Table loading={loading} dataSource={list} columns={columns} rowKey="id" />
           </div>
         </Card>
         <CreateForm {...parentMethods} modalVisible={modalVisible} />
