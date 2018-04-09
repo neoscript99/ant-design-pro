@@ -1,57 +1,15 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import { Alert, Row, Col, Card, Form, Input, Select, Button, Modal, Table, Divider } from 'antd';
+import { Alert, Row, Col, Card, Form, Input, Select, Button, Modal, Table, Divider, Switch } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 
 import styles from '../List/TableList.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const columns = [
-  {
-    title: '部门名称',
-    dataIndex: 'name',
-  },
-  {
-    title: '显示排序',
-    dataIndex: 'seq',
-  },
-  {
-    title: '是否启用',
-    dataIndex: 'enabled',
-    render: val => (val ? '是' : '否'),
-    filters: [
-      {
-        text: '是',
-        value: true,
-      },
-      {
-        text: '否',
-        value: false,
-      },
-    ],
-    filterMultiple: false,
-    onFilter: (value, record) => record.enabled === (value === 'true'),
-  },
-  {
-    title: '操作',
-    render: (text, record) => (
-      <Fragment>
-        <a onClick={() => this.handleUpdate(record)}>修改</a>
-        <Divider type="vertical" />
-        { 
-        if(!record.enabled)
-          return (<a onClick={() => this.handleEnable(record)}>启用</a>)
-        else
-          return (<a onClick={() => this.handleDisable(record)}>停用</a>)
-        }
-      </Fragment>
-    ),
-  },
-];
 
 const CreateForm = Form.create()(props => {
-  const { modalVisible, form, handleAdd, handleModalVisible } = props;
+  const { modalVisible, form, handleAdd, handleModalVisible, item } = props;
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
@@ -68,8 +26,16 @@ const CreateForm = Form.create()(props => {
     >
       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="部门名称">
         {form.getFieldDecorator('name', {
+          initialValue: item.name,
           rules: [{ required: true, message: '不能为空...' }],
         })(<Input placeholder="请输入" />)}
+      </FormItem>
+      <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="是否启用">
+        {form.getFieldDecorator('enabled', {
+          initialValue: item.enabled,
+        })(
+          <Switch checkedChildren="启用" unCheckedChildren="停用" />
+        )}
       </FormItem>
     </Modal>
   );
@@ -185,6 +151,43 @@ export default class DepartmentList extends PureComponent {
       handleModalVisible: this.handleModalVisible,
     };
 
+
+    const columns = [
+      {
+        title: '部门名称',
+        dataIndex: 'name',
+      },
+      {
+        title: '显示排序',
+        dataIndex: 'seq',
+      },
+      {
+        title: '是否启用',
+        dataIndex: 'enabled',
+        render: val => (val ? '是' : '否'),
+        filters: [
+          {
+            text: '是',
+            value: true,
+          },
+          {
+            text: '否',
+            value: false,
+          },
+        ],
+        filterMultiple: false,
+        onFilter: (value, record) => record.enabled === (value === 'true'),
+      },
+      {
+        title: '操作',
+        render: (text, record) => (
+          <Fragment>
+            <a onClick={() => this.handleUpdate(record)}>修改</a>
+          </Fragment>
+        ),
+      },
+    ];
+
     return (
       <PageHeaderLayout title="部门列表">
         <Card bordered={false}>
@@ -199,7 +202,7 @@ export default class DepartmentList extends PureComponent {
             <Table loading={loading} dataSource={list} columns={columns} rowKey="id" />
           </div>
         </Card>
-        <CreateForm {...parentMethods} modalVisible={modalVisible} />
+        <CreateForm {...parentMethods} modalVisible={modalVisible} item={{ name: '新部门', enabled: true }} />
       </PageHeaderLayout>
     );
   }
